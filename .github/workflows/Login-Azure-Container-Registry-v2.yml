@@ -1,0 +1,27 @@
+name: Login to Azure Container Registry
+
+on:
+  workflow_call:
+    inputs:
+      dockerRegistryServiceConnection:
+        description: 'Azure Container Registry Login Server'
+        required: true
+        type: string
+        
+    secrets:
+      ACR_PASSWORD:
+        required: true
+      ACR_USERNAME:
+        required: true
+ 
+jobs:
+  login-acr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Azure Container Registry
+        run: |
+          echo "${{  secrets.ACR_PASSWORD }}" | docker login ${{ inputs.dockerRegistryServiceConnection }} -u ${{  secrets.ACR_USERNAME }} --password-stdin
+
+      - name: Verify Login
+        run: |
+          docker info
