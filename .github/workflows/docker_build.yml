@@ -1,0 +1,58 @@
+name: Reusable Docker Build and Push
+
+on:
+  workflow_call:  # Allows this workflow to be reused
+    inputs:
+      image_name:
+        required: true
+        type: string
+      image_tag:
+        required: false
+        default: "latest"
+        type: string
+      docker_registry:
+        required: true
+        type: string
+    secrets:
+      ACR_PASSWORD:
+        required: true
+      ACR_USERNAME:
+        required: true
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: ${{ inputs.image_name }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      DOCKER_REGISTRY: ${{ inputs.docker_registry }}
+      
+ 
+
+    steps:
+      
+
+      - name: Log in to Docker Registry
+        run: |
+          echo "${{  secrets.ACR_PASSWORD }}" | docker login ${{ inputs.docker_registry }} -u ${{  secrets.ACR_USERNAME }} --password-stdin
+      
+      - name: Checkout Repository
+        run: |
+          echo "Cloning repository from ${{ inputs.repo_url }} branch ${{ inputs.branch }}"
+          git clone --branch stage https://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@github.com/manishkr5470/spring-petclinic.git
+
+      - name: List Cloned Repository Files
+        run: ls -la
+
+      - name: Build Docker Image
+        run: |
+          docker build -t $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG spring-petclinic/.devcontainer/.
+
+      - name: Push Docker Image
+        run: |
+          docker push $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: Log out from Docker Registry
+        run: docker logout $DOCKER_REGISTRY
