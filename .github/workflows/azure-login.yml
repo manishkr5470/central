@@ -1,0 +1,39 @@
+name: Azure Login
+
+on:
+  workflow_call:
+    inputs:
+      azure-client-id:
+        description: 'Azure Client ID'
+        required: true
+        type: string
+      azure-client-secret:
+        description: 'Azure Client Secret'
+        required: true
+        type: string
+      azure-tenant-id:
+        description: 'Azure Tenant ID'
+        required: true
+        type: string
+      azure-subscription-id:
+        description: 'Azure Subscription ID'
+        required: true
+        type: string
+
+jobs:
+  azure-login:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Azure Login using Service Principal
+        uses: azure/login@v1
+        with:
+          client-id: ${{ inputs.azure-client-id }}
+          client-secret: ${{ inputs.azure-client-secret }}
+          tenant-id: ${{ inputs.azure-tenant-id }}
+          
+      - name: Verify Azure login
+        run: |
+          az account show
